@@ -252,7 +252,44 @@ class Controller(cmd.Cmd):
         else:
             print(f"контакт {name} не знайдений")
 
+class Note(Field):
+    def __init__(self, text, tags=None):
+        super().__init__(text)
+        self.tags = tags if tags else []
 
+    def add_tag(self, tag):
+        self.tags.append(tag)
+
+    def remove_tag(self, tag):
+        self.tags.remove(tag)
+
+
+class NoteRecord(Record):
+    def __init__(self, name, birthday=None):
+        super().__init__(name, birthday)
+        self.notes = []
+
+    def add_note(self, text, tags=None):
+        note = Note(text, tags)
+        self.notes.append(note)
+
+    def remove_note_by_text(self, text):
+        self.notes = [note for note in self.notes if note.value != text]
+
+    def edit_note(self, old_text, new_text, new_tags=None):
+        for note in self.notes:
+            if note.value == old_text:
+                note.value = new_text
+                if new_tags is not None:
+                    note.tags = new_tags
+                break
+
+    def find_notes_by_tag(self, tag):
+        return [note for note in self.notes if tag in note.tags]
+
+    def __str__(self):
+        notes_str = " | ".join([f"{note.value} [{', '.join(note.tags)}]" for note in self.notes])
+        return f"NoteRecord(name={self.name.value}, notes={notes_str})"
 
 if __name__ == "__main__":
     controller = Controller()
