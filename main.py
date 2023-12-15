@@ -218,7 +218,13 @@ class Controller(cmd.Cmd):
             print(f"Помилка при створенні контакту: {e}")
 
     def do_add_phone(self, line):
+        # if not line:
+        #     print("Використання: add_name телефон")
+        #     return
         pass
+
+    def do_add_email(self, line):
+        pass    
 
     def do_add_birthday(self, line):
         pass
