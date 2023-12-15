@@ -53,7 +53,7 @@ class Birthday(Field):
         try:
             datetime.strptime(new_value, "%Y-%m-%d")
         except ValueError:
-            raise ValueError("Invalid date format!!! Use YYYY-MM-DD.")
+            raise ValueError("Invalid date format!!! Use format YYYY-MM-DD.")
 
         self._value = new_value
 
