@@ -94,7 +94,7 @@ class Record:
     def __str__(self):
         return f"Record(name={self.name.value}, birthday={self.birthday}, phones={[phone.value for phone in self.phones]})"
 
-  
+
     def days_to_birthday(self):
         if not self.birthday:
             return -1
@@ -123,7 +123,7 @@ class ConsolePrint(Printer):
 class AddressBook(UserDict):
     record_id = None
 
-    def __init__(self, file="adress_book.pkl"):
+    def __init__(self, file="adress_book_1.pkl"):
         self.file = Path(file)
         self.record_id = 0
         self.record = {}
@@ -180,127 +180,6 @@ class AddressBook(UserDict):
         return matching_records
 
 
-class Controller(cmd.Cmd):
-    def __init__(self):
-        super().__init__()
-        self.book = AddressBook()
-        self.prompt = ">>>"
-        self.intro = "Ласкаво просимо до Адресної Книги"
-
-    def do_exit(self, arg):
-        self.book.dump()
-        print("Вихід...")
-        return True
-
-    def do_save(self, arg):
-        self.book.dump()
-        print("Адресна книга збережена!")
-
-    def do_load(self, arg):
-        self.book.load()
-        print("Адресна книга відновлена")
-
-    def do_add_name(self, line):
-        if not line:
-            print("Використання: add_name Ім'я")
-            return
-        name = line.strip().capitalize()
-
-        if name in self.book:
-            print(f"Контакт з іменем {name} вже існує.")
-            return
-
-        try:
-            record = NoteRecord(name)
-            self.book.add_record(record)
-            print(f"Контакт з іменем {name} успішно створено.")
-        except ValueError as e:
-            print(f"Помилка при створенні контакту: {e}")
-
-    def do_add_phone(self, line):
-        # if not line:
-        #     print("Використання: add_name телефон")
-        #     return
-        pass
-
-    def do_add_email(self, line):
-        pass    
-
-    def do_add_birthday(self, line):
-        pass
-
-    def do_list(self, arg):
-        if not self.book.data:
-            print("Адресна книга порожня.")
-        else:
-            for record_id, record in self.book.data.items():
-                phones = '; '.join(str(phone) for phone in record.phones)
-                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
-                note_info = ""
-                # if isinstance(record, NoteRecord) and record.notes:
-                #     note_info = " | ".join([f'{note.value} [{" ,".join(tag for tag in note.tags)})' for note in record.notes])
-                #     note_info = f'Нотатки:{note_info}'
-                # print(f"{record_id}: {record.name.value}, {phones}{birthday_info}{note_info}")
-                print(f"{record_id}: {record.name.value}, {phones}{birthday_info}")
-    def do_meet_up(self, arg):
-        if not self.book.data:
-            print("Адресна книга порожня.")
-        else:
-            for name, record in self.book.data.items():
-                if isinstance(record, NoteRecord) and record.notes:
-                    note_info = " | ".join([f'{note.value} [{" ,".join(tag for tag in note.tags)}]' for note in record.notes])
-                    note_info = f"Нотатки: {note_info}"
-                    print(f"{name}: {note_info}")
-
-    def do_find(self, arg):
-        term = input("Введіть термін для пошуку: ")
-        matching_records = self.book.find_by_term(term)
-        if matching_records:
-            for record in matching_records:
-                phones = ", ".join(phone.value for phone in record.phones )
-                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
-                print(f" {record.name.value}, {phones}{birthday_info}")
-        else:
-            print("Ничего не найдено!!!.")
-
-    def do_birthday(self, line):
-        name = line.strip().capitalize()
-        record = self.book.find(name)
-        if record:
-            days_until_birthday = record.days_to_birthday()
-            if days_until_birthday > 0:
-                print(f"до дня народження контакту {name}, залишилось {days_until_birthday} днів")
-            elif days_until_birthday == 0:
-                print(f"День народження контакту {name} сьогодні!!!")
-            else:
-                print(f"день народження не додано в книгу контактів")
-
-        else:
-            print(f"контакт {name} не знайдений")
-
-    def do_note(self, line):
-        data = line.split(',')
-        if len(data) < 2:
-            print("Недостатньо аргументів. Потрібно ім'я та текст заметки.")
-            return
-
-        name = data[0].strip().capitalize()
-        note_text = data[1].strip()
-        tags = [tag.strip() for tag in data[2:]] if len(data) > 2 else []
-
-        record = self.book.data.get(name)
-        if record is None:
-            print(f"Контакт з ім'ям {name} не знайдено.")
-            return
-
-        if not isinstance(record, NoteRecord):
-            print(f"Для контакта {name} не підтримуються нотатки.")
-            return
-
-        record.add_note(note_text, tags)
-        print(f"Заметка додана до контакта {name}.")
-
-
 class Note(Field):
     def __init__(self, text, tags=None):
         super().__init__(text)
@@ -331,7 +210,7 @@ class NoteRecord(Record):
             if note.value == old_text:
                 note.value = new_text
                 if new_tags is not None:
-                    note.value = new_tags
+                    note.tags = new_tags
                 break
 
     def find_notes_by_tag(self, tag):
@@ -340,6 +219,182 @@ class NoteRecord(Record):
     def __str__(self):
         notes_str = " | ".join([f"{note.value} [{' ,'.join(note.tags)}]" for note in self.notes])
         return f"NoteRecord(name={self.name.value}, notes={notes_str})"
+
+
+class Controller(cmd.Cmd):
+    def __init__(self):
+        super().__init__()
+        self.book = AddressBook()
+        self.prompt = ">>>"
+        self.intro = "Ласкаво просимо до Адресної Книги"
+
+    def do_exit(self, arg):
+        self.book.dump()
+        print("Адресна книга збережена! Вихід...")
+        return True
+
+    def do_save(self, arg):
+        self.book.dump()
+        print("Адресна книга збережена!")
+
+    def do_load(self, arg):
+        self.book.load()
+        print("Адресна книга відновлена")
+
+    def do_add_name(self, line):
+        if not line:
+            print("Введіть: add_name Ім'я")
+            return
+        name = line.strip().capitalize()
+
+        if name in self.book:
+            print(f"Контакт з іменем {name} вже існує.")
+            return
+
+        try:
+            record = NoteRecord(name)
+            self.book.add_record(record)
+            print(f"Контакт з іменем {name} успішно створено.")
+        except ValueError as e:
+            print(f"Помилка при створенні контакту: {e}")
+
+    def do_add_phone(self, line):
+        if not line:
+            print("Введіть: add_phone Ім'я, Телефон")
+            return
+        data = line.split(",")
+        if len(data) != 2:
+            print("Для команди add_phone потрібно вказати ім'я та один телефон.")
+            return
+        name, phone = map(str.strip, data)
+        record = self.book.get(name.capitalize())
+
+        if not record:
+            print(f"Контакт з іменем {name} не знайдено.")
+            return
+
+        try:
+            record.add_phone(phone)
+            print(f"Телефон {phone} додано до контакта {name}.")
+        except ValueError as e:
+            print(f"Помилка при додаванні телефону: {e}")
+
+    def do_add_birthday(self, line):
+        if not line:
+            print("Введіть: add_birthday Ім'я, День народження")
+            return
+        data = line.split(",", 1)
+        if len(data) != 2:
+            print("Для команди add_birthday потрібно вказати ім'я та дату народження.")
+            return
+        name, birthday_str = map(str.strip, data)
+        name = name.capitalize()  # Ensure that the name's first letter is capital
+        record = self.book.get(name)
+
+        if not record:
+            print(f"Контакт з іменем {name} не знайдено.")
+            return
+
+        try:
+            record.add_birthday(birthday_str)
+            print(f"День народження {birthday_str} додано для контакта {name}.")
+        except ValueError as e:
+            print(f"Помилка при додаванні дні народження: {e}")
+
+    def do_list_book(self, arg):
+        if not self.book.data:
+            print("Адресна книга порожня.")
+        else:
+            for record_id, record in self.book.data.items():
+                phones = '; '.join(str(phone) for phone in record.phones)
+                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
+
+                print(f"{record_id}: {record.name.value}, {phones}{birthday_info}")
+    def do_list_note(self, arg):
+        if not self.book.data:
+            print("Адресна книга порожня.")
+        else:
+            for name, record in self.book.data.items():
+                if isinstance(record, NoteRecord) and record.notes:
+                    note_info = " | ".join([f'{note.value} [{" ,".join(tag for tag in note.tags)}]' for note in record.notes])
+                    note_info = f" {note_info}"
+                    print(f"{name}: {note_info}")
+
+    def do_find(self, arg):
+        term = input("Введіть термін для пошуку: ")
+        matching_records = self.book.find_by_term(term)
+        if matching_records:
+            for record in matching_records:
+                phones = ", ".join(phone.value for phone in record.phones )
+                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
+                print(f" {record.name.value}, {phones}{birthday_info}")
+        else:
+            print("Ничего не найдено!!!.")
+
+    def do_days_to_birthday(self, line):
+        name = line.strip().capitalize()
+        record = self.book.find(name)
+        if record:
+            days_until_birthday = record.days_to_birthday()
+            if days_until_birthday > 0:
+                print(f"до дня народження контакту {name}, залишилось {days_until_birthday} днів")
+            elif days_until_birthday == 0:
+                print(f"День народження контакту {name} сьогодні!!!")
+            else:
+                print(f"день народження не додано в книгу контактів")
+
+        else:
+            print(f"контакт {name} не знайдений")
+
+    def do_add_note(self, line):
+        data = line.split(',')
+        if len(data) < 2:
+            print("Недостатньо аргументів. Потрібно ім'я та текст заметки.")
+            return
+
+        name = data[0].strip().capitalize()
+        note_text = data[1].strip()
+        tags = [tag.strip() for tag in data[2:]] if len(data) > 2 else []
+
+        record = self.book.data.get(name)
+        if record is None:
+            print(f"Контакт з ім'ям {name} не знайдено.")
+            return
+
+        if not isinstance(record, NoteRecord):
+            print(f"Для контакта {name} не підтримуються нотатки.")
+            return
+
+        record.add_note(note_text, tags)
+        print(f"Заметка додана до контакта {name}.")
+
+    def do_find_note(self, line):
+        name = line.strip().capitalize()
+        record = self.book.data.get(name)
+        if not record:
+            print(f"Контакт з ім'ям {name} не знайдено.")
+            return
+
+        if isinstance(record, NoteRecord) and record.notes:
+            for note in record.notes:
+                print(f"{name}: {note.value} [Tags: {' ,'.join(note.tags)}]")
+        else:
+            print(f"Для контакта {name} не знайдено нотаток або вони не підтримуються.")
+
+    def do_delete_all_notes(self, line):
+        name = input("Введіть ім'я для видалення всіх нотаток: ")
+        if name in self.book:
+            record = self.book[name]
+            if isinstance(record, NoteRecord):
+                record.notes.clear()
+                print(f"Усі нотатки для {name} було видалено.")
+            else:
+                print("Для цього контакта нотатки не підтримуються.")
+        else:
+            print("Контакт не знайдено.")
+
+    def do_edit_note(self, line):
+        pass
 
 
 if __name__ == "__main__":
@@ -369,20 +424,20 @@ if __name__ == "__main__":
     book = AddressBook()
 
     # Створення запису
-    john_record = NoteRecord("John")
-    john_record.birthday = Birthday("2011-12-03")
-    john_record.add_phone("1234567890")
-    john_record.add_phone("7575757575")
+    max_record = NoteRecord("Max")
+    max_record.birthday = Birthday("2011-12-03")
+    max_record.add_phone("1234567890")
+    max_record.add_phone("7575757575")
 
-    grigi_record = Record("Grigi")
+    grigi_record = NoteRecord("Grigi")
     grigi_record.add_phone("8098465323")
     grigi_record.add_phone("2345678910")
 
-    selim_record = Record("Selim")
+    selim_record = NoteRecord("Selim")
     selim_record.add_phone("7098461111")
     selim_record.add_phone("5010101010")
 
-    jane_record = Record("Jane")
+    jane_record = NoteRecord("Jane")
     jane_record.add_phone("9876543210")
     jane_record.add_phone("7576541010")
 
@@ -390,15 +445,14 @@ if __name__ == "__main__":
     alex_record.add_phone("7834567000")
     alex_record.add_phone("7875757005")
 
-    ric_record = NoteRecord("Ric")
 
     # Додавання запису до адресної книги
-    controller.book.add_record(john_record)
+    controller.book.add_record(max_record)
     controller.book.add_record(grigi_record)
     controller.book.add_record(selim_record)
     controller.book.add_record(jane_record)
     controller.book.add_record(alex_record)
-    controller.book.add_record(ric_record)
+
 
     controller.cmdloop()
     # використання ітератора
@@ -413,3 +467,8 @@ if __name__ == "__main__":
         for record in item:
             print(record)
 
+# >>>load
+# Адресна книга відновлена
+# >>>add_name kostya
+# Контакт з іменем Kostya успішно створено.
+# >>>add_note kostya, Hi is student in GoIt, junior
