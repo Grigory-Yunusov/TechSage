@@ -340,6 +340,22 @@ class NoteRecord(Record):
     def __str__(self):
         notes_str = " | ".join([f"{note.value} [{' ,'.join(note.tags)}]" for note in self.notes])
         return f"NoteRecord(name={self.name.value}, notes={notes_str})"
+    
+    def add_address(self, city, street, apartment):
+        address = {
+            'city': city,
+            'street': street,
+            'apartment': apartment
+        }
+        self.addresses.append(address)
+        print(f"Address added: {address}")
+
+    def get_user_input(self):
+        city = input("Enter city: ")
+        street = input("Enter street: ")
+        apartment = input("Enter apartment: ")
+
+        self.add_address(city, street, apartment)
 
 
 if __name__ == "__main__":
