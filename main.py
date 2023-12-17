@@ -5,6 +5,7 @@ import pickle
 from pathlib import Path
 from typing import List
 from abc import ABC, abstractmethod
+from sort_files import run
 
 class Field:
     def __init__(self, value):
@@ -240,6 +241,16 @@ class Controller(cmd.Cmd):
     def do_load(self, arg):
         self.book.load()
         print("Адресна книга відновлена")
+
+    def do_sort_files(self, line):
+        if not line:
+            print("Введіть шлях до папки, яку треба сортувати")
+            return
+        try:
+            run (line)
+        except FileNotFoundError:
+            print ('Така папка не існує на диску. Можливо треба ввести повний шлях\n')
+
 
     def do_add_name(self, line):
         if not line:
