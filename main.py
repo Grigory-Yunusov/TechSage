@@ -254,9 +254,9 @@ class Controller(cmd.Cmd):
         self.book.dump()
         print("Адресна книга збережена!")
 
-#    def do_load(self, arg):
-#        self.book.load()
-#        print("Адресна книга відновлена")
+    def do_load(self, arg):
+        self.book.load()
+        print("Адресна книга відновлена")
 
     def do_add_name(self, line):
         if not line:
