@@ -182,6 +182,7 @@ class AddressBook(UserDict):
         with open(self.file, "rb") as file:
             self.record_id, data = pickle.load(file)
             self.data.update(data)
+            print("Адресна книга відновлена")
 
     def find_by_term(self, term: str) -> List[Record]:
         matching_records = []
@@ -242,7 +243,6 @@ class Controller(cmd.Cmd):
         self.book = AddressBook()
         self.prompt = ">>>"
         self.book.load()
-        print("Адресна книга відновлена")
         self.intro = "Ласкаво просимо до Адресної Книги"
 
     def do_exit(self, arg):
