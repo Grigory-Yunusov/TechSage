@@ -2,6 +2,8 @@ import sys
 import shutil
 from pathlib import Path
 from normalize_for_sort import normalize
+from rich.console import Console
+from rich.table import Table
 
 # словник з розширеннями файлів, що оброблюються
 DICT_FOR_EXT = {'archives': ['ZIP', 'GZ', 'TAR'],
@@ -87,19 +89,31 @@ def run (line):
     sorting (PATH)
 
 #вивід результатів першого прогону
+    console = Console()
+    table = Table (show_header=True)
     print ('')
     print (f'Вміст папки: {PATH}')
-    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
-    print ('|{:^15}|{:^10}|'.format ('Типи файлів', 'Кількість'))
-    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
-    print ('|{:<15}|{:^10}|'.format ('Зображення', all_files.count('images')))
-    print ('|{:<15}|{:^10}|'.format ('Відео', all_files.count('video')))
-    print ('|{:<15}|{:^10}|'.format ('Документи', all_files.count('documents')))
-    print ('|{:<15}|{:^10}|'.format ('Музика', all_files.count('audio')))
-    print ('|{:<15}|{:^10}|'.format ('Архіви', all_files.count('archives')))
-    print ('|{:<15}|{:^10}|'.format ('Інші типи', all_files.count('other')))
-    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
-    print ('|{:<15}|{:^10}|'.format ('Разом', len (all_files)))
+#    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
+#    print ('|{:^15}|{:^10}|'.format ('Типи файлів', 'Кількість'))
+    table.add_column ('Типи файлів')
+    table.add_column ('Кількість')
+#    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
+#    print ('|{:<15}|{:^10}|'.format ('Зображення', all_files.count('images')))
+    table.add_row ('Зображення', str (all_files.count('images')))
+#    print ('|{:<15}|{:^10}|'.format ('Відео', all_files.count('video')))
+    table.add_row ('Відео', str (all_files.count('video')))
+#    print ('|{:<15}|{:^10}|'.format ('Документи', all_files.count('documents')))
+    table.add_row ('Документи', str (all_files.count('documents')))
+#    print ('|{:<15}|{:^10}|'.format ('Музика', all_files.count('audio')))
+    table.add_row ('Музика', str (all_files.count('audio')))
+#    print ('|{:<15}|{:^10}|'.format ('Архіви', all_files.count('archives')))
+    table.add_row ('Архіви', str (all_files.count('archives')))
+#    print ('|{:<15}|{:^10}|'.format ('Інші типи', all_files.count('other')))
+    table.add_row ('Інші типи', str (all_files.count('other')))
+#    print ('|{:-^15}|{:-^10}|'.format ('-', '-'))
+#    print ('|{:<15}|{:^10}|'.format ('Разом', len (all_files)))
+    table.add_row ('Разом', str (len (all_files)))
+    console.print (table)
     print ('')
     print (f'Знайдено наступні відомі типи файлів: {suff_used_known}')
     print (f'Знайдено наступні невідомі типи файлів ("Інші типи"): {suff_used_unknown}')
