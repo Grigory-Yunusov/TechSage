@@ -2,6 +2,7 @@ from collections import UserDict
 from datetime import datetime
 import cmd
 import pickle
+import re
 from pathlib import Path
 from typing import List
 from abc import ABC, abstractmethod
@@ -44,6 +45,16 @@ class Phone(Field):
         self._value = new_value
         self.validate()
 
+class Email(Field):
+
+    @Field.value.setter
+    def value(self, new_value):
+        result = re.findall (r"[a-zA-Z0-9_.]+@\w+\.\w{2,3}", new_value)
+        try:
+            self._value = result[0]
+        except IndexError:
+            raise IndexError ("E-mail must be 'name@domain'")
+
 
 class Birthday(Field):
 
@@ -53,7 +64,7 @@ class Birthday(Field):
         try:
             datetime.strptime(new_value, "%Y-%m-%d")
         except ValueError:
-            raise ValueError("Invalid date format!!! Use YYYY-MM-DD.")
+            raise ValueError("Invalid date format!!! Use format YYYY-MM-DD.")
 
         self._value = new_value
 
@@ -62,12 +73,16 @@ class Record:
     def __init__(self, name, birthday=None):
         self.name = Name(name)
         self.phones = []
+        self.email = ''
         self.birthday = Birthday(birthday) if birthday else None
 
     def add_phone(self, phone):
         phone_field = Phone(phone)
         phone_field.validate()
         self.phones.append(phone_field)
+
+    def add_email(self, email):
+        self.email = Email(email)
 
     def add_birthday(self, birthday):
         new_birthday = Birthday(birthday)
@@ -167,6 +182,7 @@ class AddressBook(UserDict):
         with open(self.file, "rb") as file:
             self.record_id, data = pickle.load(file)
             self.data.update(data)
+            print("Адресна книга відновлена")
 
     def find_by_term(self, term: str) -> List[Record]:
         matching_records = []
@@ -226,6 +242,7 @@ class Controller(cmd.Cmd):
         super().__init__()
         self.book = AddressBook()
         self.prompt = ">>>"
+        self.book.load()
         self.intro = "Ласкаво просимо до Адресної Книги"
 
     def do_exit(self, arg):
@@ -279,6 +296,26 @@ class Controller(cmd.Cmd):
         except ValueError as e:
             print(f"Помилка при додаванні телефону: {e}")
 
+    def do_add_email(self, line):
+        if not line:
+            print("Введіть: add_email Ім'я, E-mail")
+            return
+        data = line.split(",")
+        if len(data) != 2:
+            print("Для команди add_email потрібно вказати ім'я та один e-mail.")
+            return
+        name, email = map(str.strip, data)
+        record = self.book.get(name.capitalize())
+
+        if not record:
+            print(f"Контакт з іменем {name} не знайдено.")
+            return
+        try:
+            record.add_email(email)
+            print(f"E-mail {email} додано до контакта {name}.")
+        except IndexError as e:
+            print(f"Помилка при додаванні e-mail: {e}")
+
     def do_add_birthday(self, line):
         if not line:
             print("Введіть: add_birthday Ім'я, День народження")
@@ -307,9 +344,9 @@ class Controller(cmd.Cmd):
         else:
             for record_id, record in self.book.data.items():
                 phones = '; '.join(str(phone) for phone in record.phones)
-                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
-
-                print(f"{record_id}: {record.name.value}, {phones}{birthday_info}")
+                birthday_info = f"; День народження: {record.birthday.value}" if record.birthday else ""
+                email_info = f'; {record.email}' if record.email else "" 
+                print(f"{record_id}: {record.name.value}, {phones}{birthday_info}{email_info}")
     def do_list_note(self, arg):
         if not self.book.data:
             print("Адресна книга порожня.")
@@ -402,7 +439,7 @@ if __name__ == "__main__":
 
     # Перевірка на коректність веденого номера телефону setter для value класу Phone.
     phone_field = Phone("1234567890")
-    print(phone_field.value)  # Вивід значення через getter
+#    print(phone_field.value)  # Вивід значення через getter
 
     # спроба встановити не коректний номер телефону
     try:
@@ -412,7 +449,7 @@ if __name__ == "__main__":
 
     # Перевірка на коректність веденого дня народження setter для value класу Birthday.
     birthday_field = Birthday("1990-01-01")
-    print(birthday_field.value)  # Вивід значення через getter
+#    print(birthday_field.value)  # Вивід значення через getter
 
     # спроба встановити не коректне значенне для дня народження
     try:
