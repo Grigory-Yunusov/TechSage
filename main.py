@@ -16,7 +16,25 @@ import re
 from sort_files import run
 
 console = Console()
-
+COMMANDS = {'exit': ['exit', 'Вихід із програми'],
+            'add_name': ['command', 'description'],
+            'add_phone': ['command', 'description'],
+            'add_birthday': ['command', 'description'],
+            'list_book': ['command', 'description'],
+            'load': ['command', 'description'],
+            'list_note': ['command', 'description'],
+            'find_info': ['command', 'description'],
+            'days_to_birthday': ['command', 'description'],
+            'add_note': ['command', 'description'],
+            'save': ['command', 'description'],
+            'find_note': ['command', 'description'],
+            'delete_all_notes': ['command', 'description'],
+            'add_email': ['command', 'description'],
+            'add_address': ['command', 'description'],
+            'when': ['command', 'description'],
+            'edit_note': ['command', 'description'],
+            'sort_files': ['command', 'description'],
+            'help': ['command', 'description']}
 
 class Field:
     def __init__(self, value):
@@ -392,20 +410,32 @@ class Controller():
         else:
             print("Ничего не найдено!!!.")
 
-    def do_birthday(self, line): # >>>birthday John (до дня народження контакту John, залишилось 354 днів)
-        name = line.strip().capitalize()
+    def do_days_to_birthday(self, line, when=9999): # >>>birthday John (до дня народження контакту John, залишилось 354 днів)
+        name = line.strip().title()
         record = self.book.find(name)
         if record:
             days_until_birthday = record.days_to_birthday()
-            if days_until_birthday > 0:
-                print(f"до дня народження контакту {name}, залишилось {days_until_birthday} днів")
+            if 0 < days_until_birthday < when:
+                print(f"До дня народження {name} {record.birthday} залишилось {days_until_birthday} днів")
             elif days_until_birthday == 0:
                 print(f"День народження контакту {name} сьогодні!!!")
+            elif (days_until_birthday > when or days_until_birthday == -1) and (when != 9999):
+                pass
             else:
-                print(f"день народження не додано в книгу контактів")
+                print(f"День народження не додано в книгу контактів")
 
         else:
             print(f"контакт {name} не знайдений")
+
+    def do_when (self, days):
+        if not days:
+            print ("Введіть 'when' та кількість днів, на які хочете побачити прогноз")
+            return
+        if not days.isdigit():
+            print ("Введіть кількість днів додатнім числовим значенням")
+            return
+        for record in self.book:
+            self.do_days_to_birthday (record.name.value, int(days))
 
     def do_add_note(self, name):
         
@@ -459,15 +489,15 @@ class Controller():
         except FileNotFoundError:
             print ('Така папка не існує на диску. Можливо треба ввести повний шлях\n')
 
-    def do_when (self, days):
-        if not days:
-            print ("Введіть 'when' та кількість днів, на які хочете побачити прогноз")
-            return
-        if not days.isdigit():
-            print ("Введіть кількість днів числовим значенням")
-            return
-        for record in self.book:
-            self.do_days_to_birthday (record.name.value, int(days))
+    def do_help(self):
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column('Синтаксис команди')
+        table.add_column('Опис')
+
+        for commands in COMMANDS.values():
+            table.add_row (commands[0], commands[1])
+        console.print (table)
+        print ('Після введення команди натисни Enter')
 
 
 class CommandValidator(Validator):
@@ -522,6 +552,8 @@ class CommandValidator(Validator):
 def handle_command(command):
     if command.lower().startswith("add_name"):
         return controller.do_add_name()
+    elif command.lower().startswith("help"):
+        return controller.do_help()
     elif command.lower().startswith("add_phone"):
         _, name, phone = command.split(" ")
         return controller.do_add_phone(name, phone)
@@ -546,6 +578,9 @@ def handle_command(command):
     elif command.lower().startswith("days_to_birthday"):
          _, name = command.split(" ")
          return controller.do_days_to_birthday(name)
+    elif command.lower().startswith("when"):
+         _, name = command.split(" ")
+         return controller.do_when(name)
     elif command.lower().startswith("add_note"):
          _, name = command.split(" ")
          return controller.do_add_note(name)
@@ -566,30 +601,33 @@ def main():
     print("Ласкаво просимо до Адресної Книги")
 
     while True:
-        
-        command_interpreter = NestedCompleter.from_nested_dict({
-                
-                'exit': None,
-                'add_name': None,
-                'add_phone': None,
-                'add_birthday': None,
-                'list_book': None,
-                'load': None,
-                'list_note': None,
-                'find_info': None,
-                'days_to_birthday': None,
-                'add_note': None,
-                'save': None,
-                'find_note': None,
-                'delete_all_notes': None,
-                'add_email': None,
-                'add_address': None,
-                'when': None,
-                'edit_note': None,
-                'sort_files': None,
-                'help': None,
-                })    
-            
+        commands_for_interp = {}
+        for command in COMMANDS.keys():
+            commands_for_interp[command] = None
+        command_interpreter = NestedCompleter.from_nested_dict(commands_for_interp)
+#            {
+#                
+#                'exit': None,
+#                'add_name': None,
+#                'add_phone': None,
+#                'add_birthday': None,
+#                'list_book': None,
+#                'load': None,
+#                'list_note': None,
+#                'find_info': None,
+#                'days_to_birthday': None,
+#                'add_note': None,
+#                'save': None,
+#                'find_note': None,
+#                'delete_all_notes': None,
+#                'add_email': None,
+#                'add_address': None,
+#                'when': None,
+#                'edit_note': None,
+#                'sort_files': None,
+#                'help': None,
+#                })    
+                   
         user_input = prompt('Enter command: ', completer=command_interpreter, validator=CommandValidator(), validate_while_typing=False)
         if user_input.lower() == "exit":
             print("Good bye!")
