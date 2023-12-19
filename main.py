@@ -381,8 +381,12 @@ class Controller():
             table.add_column("Birthdays")
             for record_id, record in self.book.data.items():
                 phones = '; '.join(str(phone) for phone in record.phones)
-                birthday_info = f", День народження: {record.birthday.value}" if record.birthday else ""
-                print(f"{record_id}: {record.name.value}, {phones}{birthday_info}")
+                birthday_info = record.birthday.value if record.birthday else ""
+                address_info = record.address.value if record.address else ""
+                email_info = record.email.value if record.email else ""
+                table.add_row(record_id, record.name.value, phones, address_info, email_info, birthday_info)
+                table.add_section()
+            console.print(table)
 
     def do_list_note(self):
         if not self.book.data:
