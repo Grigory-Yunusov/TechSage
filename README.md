@@ -66,8 +66,7 @@
 	```bash 
     list_note 'Name'
     Picture
-    [![alt text](https://github.com/Grigory-Yunusov/TechSage/blob/feature/add-address/big_table.png?raw=true)](https://private-user-images.githubusercontent.com/95983273/292049318-a3e8f4a5-2c80-4f4a-9c94-b3a980075914.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDMxMTY3NjgsIm5iZiI6MTcwMzExNjQ2OCwicGF0aCI6Ii85NTk4MzI3My8yOTIwNDkzMTgtYTNlOGY0YTUtMmM4MC00ZjRhLTljOTQtYjNhOTgwMDc1OTE0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzEyMjAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMjIwVDIzNTQyOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTRkNDcwZTcwNmMzNjJjN2EzMTJjNGY2OTRjYzZhMDdjNzIwOGIzMzJlODBkZDA4NTFiYjE3NWVlNjI5NjIzYTQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.4t-oHIhsLKtmZIL1_TznljS5FY4RRXFGeb15uTwAaOw)
-
+    ![big_table](https://private-user-images.githubusercontent.com/95983273/292049318-a3e8f4a5-2c80-4f4a-9c94-b3a980075914.png)
 
 - **delete_all_notes**: Видаляє всі нотатки користувача.
 	```bash 
