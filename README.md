@@ -66,7 +66,7 @@
 	```bash 
     list_note 'Name'
     Picture
-    ![big_table](https://private-user-images.githubusercontent.com/95983273/292049318-a3e8f4a5-2c80-4f4a-9c94-b3a980075914.png)
+    ![big_table](https://github.com/Grigory-Yunusov/TechSage/assets/95983273/83176bd0-e0ed-47c5-add0-0d23e23ffeae)
 
 - **delete_all_notes**: Видаляє всі нотатки користувача.
 	```bash 
