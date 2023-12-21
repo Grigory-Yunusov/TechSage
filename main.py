@@ -28,9 +28,9 @@ COMMANDS = {'add_name': ['add_name', 'Додавання нового конта
             'delete_email': ['delete_email Name', 'Видалення електроної адреси у контакту Name'],
             'delete_address': ['delete_address Name', 'Видалення адреси у контакту Name'],
 
-            'add_note': ['add_note', 'Додавання нотатки для контакту ____'],
-            'find_note_by_name': ['find_note_by_name', 'Пошук у нотатках за іменем ____'],
-            'find_notes_by_term': ['find_notes_by_term', 'Пошук у нотатках за будь яким терміном ____'],
+            'add_note': ['add_note Name', 'Додавання нотатки для контакту Name'],
+            'find_note_by_name': ['find_note_by_name Name', 'Пошук у нотатках для імені Name'],
+            'find_notes_by_term': ['find_notes_by_term text', "Пошук у всіх нотатках за текстом 'text'"],
             'list_note': ['list_note', 'Вивід на екран усіх нотаток'],
             'edit_note': ['edit_note', 'Коригування нотаток'],
             'delete_all_notes': ['delete_all_notes', 'Видалення усіх нотаток'],
@@ -554,8 +554,10 @@ class Controller():
             if isinstance(record, NoteRecord):
                 matching_notes = record.find_notes_by_term(term)
                 for note in matching_notes:
-                    tag_string = ', '.join(note.tags) if note.tags else ''
-                    table.add_row(name, note.value, note.date, tag_string)
+#                    tag_string = ', '.join(note.tags) if note.tags else ''
+#                    table.add_row(name, note.value, note.date, tag_string)
+                    table.add_row(name, note.value, note.tags, note.date)
+                    table.add_section()
                     found_notes = True
         
         console = Console()
@@ -622,9 +624,16 @@ class Controller():
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
             return
+        table = Table(show_header=True, header_style="bold yellow")
+        table.add_column('Name')
+        table.add_column('Note')
+        table.add_column('Date')
+        table.add_column('Tags')
         if isinstance(record, NoteRecord) and record.notes:
             for note in record.notes:
-                print(f"{name}: {note.value} [Tags: {''.join(note.tags)}]")
+                table.add_row(name, note.value, note.tags, note.date)
+                table.add_section()
+            console.print(table)
         else:
             print(f"Для контакта '{name}' не знайдено нотаток або вони не підтримуються.")
 
@@ -721,7 +730,7 @@ class CommandValidator(Validator):
         if text.startswith("find_notes_by_term"):
             x = text.split(" ")
             if len(x) != 2:
-                raise ValidationError(message="Введіть: <Ім'я> для пошуку", cursor_position=len(text))
+                raise ValidationError(message="Введіть: текст для пошуку", cursor_position=len(text))
             
         if text.startswith("edit_note"):
             x = text.split(" ")
