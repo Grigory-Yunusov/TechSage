@@ -452,7 +452,7 @@ class Controller():
     
     def do_find_notes_by_term(self, term):
         term = term.strip().lower()
-        table = Table(show_header=True, header_style="bold magenta")
+        table = Table(show_header=True, header_style="bold yellow")
         table.add_column('Name')
         table.add_column('Note')
         table.add_column('Date')
