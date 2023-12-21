@@ -286,7 +286,7 @@ class Controller():
         print("Адресна книга відновлена")
 
     def do_help(self):
-        table = Table(show_header=True, header_style="bold magenta")
+        table = Table(show_header=True, header_style="bold blue", border_style='bold green')
         table.add_column('Синтаксис команди')
         table.add_column('Опис')
 
@@ -365,7 +365,7 @@ class Controller():
         if not self.book.data:
             print("Адресна книга порожня.")
         else:
-            table = Table(show_header=True, header_style="bold magenta")
+            table = Table(show_header=True, header_style="bold magenta", border_style='bold violet')
 #            table.add_column('ID')
             table.add_column('Name')
             table.add_column("Phone")
@@ -386,7 +386,7 @@ class Controller():
         if not self.book.data:
             print("Адресна книга порожня.")
         else:
-            table = Table(show_header=True, header_style="bold magenta")
+            table = Table(show_header=True, header_style="bold cyan", border_style='bold yellow')
             table.add_column('Author')
             table.add_column("Note")
             table.add_column("Tag")
@@ -398,7 +398,7 @@ class Controller():
                         table.add_section()
             console.print(table)
 
-    def do_find(self, line):
+    def do_find_info(self, line):
         matching_records = self.book.find_by_term(line)
         if matching_records:
             for record in matching_records:
