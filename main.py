@@ -32,8 +32,8 @@ COMMANDS = {'add_name': ['add_name', 'Додавання нового конта
             'find_note_by_name': ['find_note_by_name Name', 'Пошук у нотатках для імені Name'],
             'find_notes_by_term': ['find_notes_by_term text', "Пошук у всіх нотатках за текстом 'text'"],
             'list_note': ['list_note', 'Вивід на екран усіх нотаток'],
-            'edit_note': ['edit_note', 'Коригування нотаток'],
-            'delete_all_notes': ['delete_all_notes', 'Видалення усіх нотаток'],
+            'edit_note': ['edit_note Name', 'Коригування нотаток для контакту Name'],
+            'delete_all_notes': ['delete_all_notes Name', 'Видалення усіх нотаток для контакту Name'],
 
             'days_to_birthday': ['days_to_birthday Name', 'Розрахунок залишку днів до дня народження контакта "Name"'],
             'when': ['when Number', 'Виводить на екран список контактів, у яких день народження впродовж "Number" днів від сьогодні'],
@@ -319,17 +319,21 @@ class Controller():
         console.print(table)
         print('Після введення команди натисни Enter')
 
+    def line_to_name (self, line):
+        line = line.strip().split(' ')
+        name = ''
+        for each in line:
+            name = f'{name}{each[0].capitalize()}{each[1:]} '
+        name = name.strip()
+        return name
+
     def do_add_name(self):
         while True:
             line = input("Введіть: <Ім'я>: ")
             if not line:
                 print("Будь ласка введіть: <Ім'я>: ")
                 continue
-            line = line.strip().split(' ')
-            name = ''
-            for each in line:
-                name = f'{name}{each[0].capitalize()}{each[1:]} '
-            name = name.strip()
+            name = self.line_to_name(line)
             if name in self.book:
                 print(f"Контакт з ім'ям '{name}' вже існує.")
                 return
@@ -347,11 +351,7 @@ class Controller():
             if not line:
                 print("Будь ласка введіть: <Ім'я>: ")
                 continue
-            line = line.strip().split(' ')
-            name = ''
-            for each in line:
-                name = f'{name}{each[0].capitalize()}{each[1:]} '
-            name = name.strip()
+            name = self.line_to_name(line)
             if not (name in self.book):
                 print(f"Контакт з ім'ям '{name}' не існує.")
                 return
@@ -364,12 +364,7 @@ class Controller():
                 print(f"Помилка при видаленні контакту: {e}")
 
     def do_add_phone(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
-
+        name = self.line_to_name(line)
         record = self.book.get(name)
 
         if not record:
@@ -384,12 +379,7 @@ class Controller():
             print(f"Помилка при додаванні телефону: {e}")
 
     def do_delete_phone(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
-
+        name = self.line_to_name(line)
         record = self.book.get(name)
 
         if not record:
@@ -403,11 +393,7 @@ class Controller():
             print(f"Помилка при видаленні телефону: {e}")
 
     def do_add_birthday(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.get(name)
 
         if not record:
@@ -421,11 +407,7 @@ class Controller():
             print(f"Помилка при додаванні дні народження: {e}")
 
     def do_add_email(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.get(name)
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -438,11 +420,7 @@ class Controller():
             print(f"Помилка при додаванні email: {e}")
 
     def do_delete_email(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.get(name)
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -454,11 +432,7 @@ class Controller():
             print(f"Помилка при видаленні email: {e}")
 
     def do_add_address(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.get(name)
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -471,11 +445,7 @@ class Controller():
             print(f"Помилка при додаванні адреси: {e}")
 
     def do_delete_address(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.get(name)
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -554,8 +524,6 @@ class Controller():
             if isinstance(record, NoteRecord):
                 matching_notes = record.find_notes_by_term(term)
                 for note in matching_notes:
-#                    tag_string = ', '.join(note.tags) if note.tags else ''
-#                    table.add_row(name, note.value, note.date, tag_string)
                     table.add_row(name, note.value, note.tags, note.date)
                     table.add_section()
                     found_notes = True
@@ -567,26 +535,51 @@ class Controller():
             print("Даних із таким текстом не існує!!!.")
     
     def do_days_to_birthday(self, line, when=9999): # >>>birthday John (до дня народження контакту John, залишилось 354 днів)
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        if when == 9999:
+            table = Table(show_header=True, header_style="bold magenta")
+        else:
+            table = Table(show_header=False, header_style="bold magenta")
+        table.add_column('Name')
+        table.add_column("Phone")
+        table.add_column("Email")
+        table.add_column("Birthday")
+        table.add_column("Days to b-day")
+        name = self.line_to_name(line)
         record = self.book.find(name)
         if record:
             days_until_birthday = record.days_to_birthday()
-            if 0 < days_until_birthday < when:
-                print(f"До дня народження {name} {record.birthday} залишилось {days_until_birthday} днів")
+            if 0 < days_until_birthday <= when:
+#                print(f"До дня народження {name} {record.birthday} залишилось {days_until_birthday} днів\n")
+                phones = '; '.join(str(phone) for phone in record.phones)
+                birthday_info = record.birthday.value if record.birthday else ""
+                email_info = record.email.value if record.email else ""
+                table.add_row(record.name.value, phones, email_info, birthday_info, str(days_until_birthday))
+                table.add_section()
             elif days_until_birthday == 0:
-                print(f"День народження контакту {name} сьогодні!!!")
+#                print(f"День народження контакту {name} сьогодні!!!\n")
+                phones = '; '.join(str(phone) for phone in record.phones)
+                birthday_info = record.birthday.value if record.birthday else ""
+                email_info = record.email.value if record.email else ""
+                table.add_row(record.name.value, phones, email_info, birthday_info, 'TODAY!!!')
+                table.add_section()
             elif (days_until_birthday > when or days_until_birthday == -1) and (when != 9999):
-                pass
+                return
             else:
-                print(f"День народження не додано в книгу контактів")
+                print(f"День народження {name} не додано в книгу контактів\n")
+            if when == 9999:
+                console.print (table)
+            else:
+                return (days_until_birthday)
         else:
             print(f"Контакт '{name}' не знайдений")
             
     def do_when (self, days):
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column('Name')
+        table.add_column("Phone")
+        table.add_column("Email")
+        table.add_column("Birthday")
+        table.add_column("Days to b-day")
         if not days:
             print ("Введіть 'when' та кількість днів, на які хочете побачити прогноз")
             return
@@ -594,14 +587,23 @@ class Controller():
             print ("Введіть кількість днів додатнім числовим значенням")
             return
         for record in self.book.values():
-            self.do_days_to_birthday (record.name.value, int(days)) 
+            phones = '; '.join(str(phone) for phone in record.phones)
+            birthday_info = record.birthday.value if record.birthday else ""
+            email_info = record.email.value if record.email else ""
+            when = self.do_days_to_birthday (record.name.value, int(days))
+            if when != None and when != 0 and when != 1:
+                table.add_row(record.name.value, phones, email_info, birthday_info, str(when))
+            elif when == 0:
+                table.add_row(record.name.value, phones, email_info, birthday_info, 'TODAY!!!')
+            elif when == 1:
+                table.add_row(record.name.value, phones, email_info, birthday_info, 'TOMORROW!!!')
+            
+            table.add_section()
+        console.print(table)
+
 
     def do_add_note(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name_normal = name.strip()
+        name_normal = self.line_to_name(line)
         record = self.book.data.get(name_normal)
         if record is None:
             print(f"Контакт з ім'ям '{name_normal}' не знайдено.")
@@ -615,11 +617,7 @@ class Controller():
         print(f"Заметка додана до контакта {name_normal}.")
 
     def do_find_note_by_name(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.data.get(name)
         if not record:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -638,8 +636,7 @@ class Controller():
             print(f"Для контакта '{name}' не знайдено нотаток або вони не підтримуються.")
 
     def do_delete_all_notes(self, line):
-        name = input("Введіть ім'я для видалення всіх нотаток: ")
-        name_normal = name.strip().title()
+        name_normal = self.line_to_name(line)
         if name_normal in self.book:
             record = self.book[name_normal]
             if isinstance(record, NoteRecord):
@@ -650,14 +647,8 @@ class Controller():
         else:
             print("Контакт не знайдено.")
 
-    
-
     def do_edit_note(self, line):
-        line = line.strip().split(' ')
-        name = ''
-        for each in line:
-            name = f'{name}{each[0].capitalize()}{each[1:]} '
-        name = name.strip()
+        name = self.line_to_name(line)
         record = self.book.data.get(name)
         if record is None:
             print(f"Контакт з ім'ям '{name}' не знайдено.")
@@ -681,19 +672,17 @@ class CommandValidator(Validator):
     def validate(self, document):
         text = document.text
         if text.startswith("add_phone"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
-#            if (not x[2].isdigit()):
-#                raise ValidationError(message='Телефон повинен складатися з цифр', cursor_position=len(text))
 
         if text.startswith("delete_phone"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("add_birthday"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
@@ -703,27 +692,27 @@ class CommandValidator(Validator):
                 raise ValidationError(message="Введіть: будь який термін для пошуку", cursor_position=len(text))
 
         if text.startswith("days_to_birthday"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я> для пошуку", cursor_position=len(text))
 
         if text.startswith("when"):
-            x = text.split(" ")
-            if len(x) != 2:
+            x = text.strip().split(" ")
+            if len(x) < 2:
                 raise ValidationError(message="Введіть: кількість днів для пошуку", cursor_position=len(text))
 
         if text.startswith("sort_files"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) != 2:
                 raise ValidationError(message="Введіть: шлях до папки, яку треба сортувати", cursor_position=len(text))
 
         if text.startswith("add_note"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("find_note_by_name"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я> для пошуку", cursor_position=len(text))
             
@@ -733,32 +722,32 @@ class CommandValidator(Validator):
                 raise ValidationError(message="Введіть: текст для пошуку", cursor_position=len(text))
             
         if text.startswith("edit_note"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position = len(text))
             
         if text.startswith("delete_all_notes"):
-            x = text.split(" ")
-            if len(x) != 2:
+            x = text.strip().split(" ")
+            if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("add_email"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("delete_email"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("add_address"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
         if text.startswith("delete_address"):
-            x = text.split(" ")
+            x = text.strip().split(" ")
             if len(x) < 2:
                 raise ValidationError(message="Введіть: <Ім'я>", cursor_position=len(text))
 
@@ -836,7 +825,8 @@ def handle_command(command):
         _, name = [command[:first_space_index], command[first_space_index+1:]]
         return controller.do_edit_note(name)
     elif command.lower().startswith("delete_all_notes"):
-        _, name = command.split(" ")
+        first_space_index = command.find(' ')
+        _, name = [command[:first_space_index], command[first_space_index+1:]]
         return controller.do_delete_all_notes(name)
     elif command.lower() == "exit":
         controller.do_exit()
